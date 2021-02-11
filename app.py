@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request,redirect
+from flask import Flask, render_template, request, redirect, flash
 import csv
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route('/')
 def index():
@@ -17,11 +18,15 @@ def function(route):
 def submit():
 	if request.method == 'POST':
 			if not request.form.get('email'):
-				return "Please enter an email address"
+				flash("Please enter your email address.", "alert")
+				return redirect(request.url)
 			if not request.form.get('subject'):
-				return "Please enter a subject."
+				flash("Please enter a subject.", "alert")
+				return redirect(request.url)
 			if len(request.form.get('message').strip()) < 10:
-				return "Message needs to be at least 10 characters long"
+				flash("Message needs to be at least 10 characters long", "alert")
+				return redirect(request.url)
+
 
 			data = request.form.to_dict()
 
@@ -34,8 +39,8 @@ def submit():
 				writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 				writer.writerow([data["email"],data["subject"],data["message"]])
 
-
-			return redirect('/')
+			flash("Message sent succesfully!", "success")
+			return redirect(request.url)
 	else:
 		return redirect('/contact.html')
 
